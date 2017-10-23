@@ -37,14 +37,15 @@ class Cities(object):
             self._json = json.loads(f.read())
         # self._countries = set([entry["country"] for entry in self._json])
 
-    def make_city_table(self):  # TODO: Make proper db schema (like countries_id in place of simple countries names)
-        db = sqlite3.connect("weather.db")
-        db.execute("CREATE TABLE `countries` "
-                   "(`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,"
-                   "`name` TEXT UNIQUE);")
-        with db:
-            for country in self._countries:
-                db.execute("INSERT INTO countries(name) VALUES (?)", (country, ))
+    # TODO: Make proper db schema (like countries_id in place of simple countries names)
+    # def make_city_table(self):
+    #     db = sqlite3.connect("weather.db")
+    #     db.execute("CREATE TABLE `countries` "
+    #                "(`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,"
+    #                "`name` TEXT UNIQUE);")
+    #     with db:
+    #         for country in self._countries:
+    #             db.execute("INSERT INTO countries(name) VALUES (?)", (country, ))
 
     def populate_db_with_cities(self):
         db = sqlite3.connect("weather.db")
@@ -61,7 +62,21 @@ class DBHandler(object):
     Communicate with database
     """
     def __init__(self):
-        self._db = sqlite3.connect("weather.db")
+        with os.scandir() as it:
+            if "weather.db" in [e.name for e in it]:
+                self._db = sqlite3.connect("weather.db")
+            else:
+                self._db = sqlite3.connect("weather.db")
+                self._first_run()
+
+    def _first_run(self):
+        pass
+
+    def _close_db(self):
+        self._db.close()
+
+    def __del__(self):
+        self._db.close()
 
 
 class Forecast(object):
